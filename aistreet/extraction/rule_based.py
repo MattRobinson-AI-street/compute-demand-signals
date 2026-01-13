@@ -39,6 +39,19 @@ class RuleBasedExtractor(Extractor):
         "indicate by check mark",
         "rule 12b-2",
         "exchange act",
+        "tax provision",
+        "income tax",
+        "effective tax rate",
+        "debt instruments",
+        "acceleration of repayments",
+        "accelerated maturity",
+        "events of default",
+        "indenture",
+        "principal amount",
+        "financial statements",
+        "three months ended",
+        "nine months ended",
+        "fiscal year",
     ]
 
     def extract(self, text: str, source_id: int) -> list[Signal]:

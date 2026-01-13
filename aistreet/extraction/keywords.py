@@ -1,44 +1,60 @@
 """Keyword patterns and rules for signal extraction."""
 
-# Demand direction indicators
+# Capacity constraint indicators (tight/constrained)
 DEMAND_UP_KEYWORDS = {
-    "increased demand",
-    "growing demand",
-    "strong demand",
-    "higher demand",
-    "demand growth",
-    "increased capacity",
+    "capacity constrained",
+    "capacity constraints",
+    "constrained capacity",
+    "shortage",
+    "shortages",
+    "supply constrained",
+    "supply constraints",
+    "limited availability",
+    "tight supply",
+    "allocation",
+    "allocating",
+    "rationing",
+    "sold out",
+    "waiting list",
+    "lead time",
+    "backlog",
+    "constrained by",
+    "limited by",
+    "unable to meet demand",
+    "exceeded capacity",
+    "fully utilized",
+    "at capacity",
+    "capacity limitations",
+}
+
+# Capacity slack indicators (loose/abundant)
+DEMAND_DOWN_KEYWORDS = {
+    "excess capacity",
+    "spare capacity",
+    "underutilized",
+    "available capacity",
+    "abundant supply",
+    "ample supply",
+    "oversupply",
+    "surplus",
+    "excess inventory",
+    "readily available",
+    "slack",
+    "unused capacity",
+    "idle capacity",
+}
+
+# Capacity expansion/contraction indicators
+DEMAND_FLAT_KEYWORDS = {
     "expanding capacity",
     "capacity expansion",
-    "accelerat",
-    "ramp",
-    "scaling",
-    "significant increase",
-    "robust demand",
-    "surge",
-}
-
-DEMAND_DOWN_KEYWORDS = {
-    "decreased demand",
-    "declining demand",
-    "lower demand",
-    "reduced demand",
-    "weakening demand",
-    "softening demand",
-    "demand slowdown",
-    "decreased capacity",
+    "adding capacity",
+    "building capacity",
+    "increasing capacity",
+    "capacity additions",
+    "new capacity",
+    "reducing capacity",
     "capacity reduction",
-    "slowdown",
-    "decelerat",
-}
-
-DEMAND_FLAT_KEYWORDS = {
-    "stable demand",
-    "steady demand",
-    "consistent demand",
-    "unchanged demand",
-    "flat demand",
-    "maintaining capacity",
 }
 
 # Compute-related terms (signal relevance)
@@ -52,7 +68,6 @@ COMPUTE_KEYWORDS = {
     "datacenter",
     "training",
     "inference",
-    "accelerat",
     "nvidia",
     "cuda",
     "tensor",
@@ -60,6 +75,10 @@ COMPUTE_KEYWORDS = {
     "a100",
     "cloud infrastructure",
     "hyperscale",
+    "ai chips",
+    "accelerators",
+    "server capacity",
+    "colocation",
 }
 
 # Segment indicators
