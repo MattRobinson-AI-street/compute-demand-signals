@@ -66,12 +66,12 @@ Each extracted signal includes:
 
 ## 🌐 Live Website
 
-View the live dashboard at: **[Your GitHub Pages URL will go here]**
+**View the live dashboard at: https://mattrobinson-ai-street.github.io/compute-demand-signals/**
 
 The website includes:
-- **Home**: Overview and statistics
-- **Calendar**: Interactive timeline of filings with clickable SEC links
-- **Report**: Detailed signal analysis with top 10 insights
+- **[Home](https://mattrobinson-ai-street.github.io/compute-demand-signals/)**: Overview and statistics
+- **[Calendar](https://mattrobinson-ai-street.github.io/compute-demand-signals/calendar.html)**: Interactive timeline of filings with clickable SEC links
+- **[Report](https://mattrobinson-ai-street.github.io/compute-demand-signals/report.html)**: Detailed signal analysis with top 10 insights
 
 ## Installation
 
