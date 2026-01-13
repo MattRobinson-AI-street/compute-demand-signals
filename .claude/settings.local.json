@@ -1,0 +1,16 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(source venv/bin/activate:*)",
+      "Bash(PYTHONPATH=. pytest:*)",
+      "Bash(python3:*)",
+      "Bash(python -m aistreet:*)",
+      "Bash(sqlite3:*)",
+      "Bash(python:*)",
+      "Bash(cat:*)",
+      "Bash(tree:*)",
+      "Bash(git init:*)",
+      "Bash(git add:*)"
+    ]
+  }
+}

@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Street - Compute Demand Intelligence</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: #0a0e27;
+            color: #e4e4e7;
+            min-height: 100vh;
+        }
+
+        nav {
+            background: #18181b;
+            border-bottom: 1px solid #27272a;
+            padding: 1rem 2rem;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .nav-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .nav-brand {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: #fff;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 2rem;
+            list-style: none;
+        }
+
+        .nav-links a {
+            color: #a1a1aa;
+            text-decoration: none;
+            transition: color 0.2s;
+            font-weight: 500;
+        }
+
+        .nav-links a:hover {
+            color: #fff;
+        }
+
+        .hero {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 4rem 2rem;
+            text-align: center;
+        }
+
+        h1 {
+            font-size: 3rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            color: #fff;
+            line-height: 1.2;
+        }
+
+        .subtitle {
+            font-size: 1.25rem;
+            color: #a1a1aa;
+            margin-bottom: 3rem;
+            max-width: 700px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .stats-grid {
+            max-width: 1400px;
+            margin: 0 auto 4rem;
+            padding: 0 2rem;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .stat-card {
+            background: #18181b;
+            border: 1px solid #27272a;
+            border-radius: 12px;
+            padding: 2rem;
+            transition: border-color 0.2s;
+        }
+
+        .stat-card:hover {
+            border-color: #3f3f46;
+        }
+
+        .stat-label {
+            color: #71717a;
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-value {
+            color: #fff;
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-description {
+            color: #a1a1aa;
+            font-size: 0.9rem;
+        }
+
+        .cta-section {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 2rem 4rem;
+        }
+
+        .cta-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 2rem;
+        }
+
+        .cta-card {
+            background: linear-gradient(135deg, #1e293b 0%, #18181b 100%);
+            border: 1px solid #27272a;
+            border-radius: 12px;
+            padding: 2.5rem;
+            text-decoration: none;
+            transition: all 0.3s;
+            display: block;
+        }
+
+        .cta-card:hover {
+            border-color: #3b82f6;
+            transform: translateY(-2px);
+        }
+
+        .cta-icon {
+            font-size: 2rem;
+            margin-bottom: 1rem;
+        }
+
+        .cta-title {
+            color: #fff;
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: 0.75rem;
+        }
+
+        .cta-description {
+            color: #a1a1aa;
+            font-size: 1rem;
+            line-height: 1.6;
+        }
+
+        .about-section {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 4rem 2rem;
+            background: #18181b;
+            border-radius: 12px;
+            margin-bottom: 4rem;
+        }
+
+        .about-title {
+            font-size: 2rem;
+            font-weight: 600;
+            color: #fff;
+            margin-bottom: 1.5rem;
+        }
+
+        .about-content {
+            color: #d4d4d8;
+            font-size: 1.1rem;
+            line-height: 1.8;
+            margin-bottom: 1.5rem;
+        }
+
+        .companies-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-top: 2rem;
+        }
+
+        .company-badge {
+            background: #1f1f23;
+            border: 1px solid #27272a;
+            padding: 1rem;
+            border-radius: 8px;
+            text-align: center;
+            font-weight: 500;
+            color: #e4e4e7;
+        }
+
+        footer {
+            text-align: center;
+            padding: 2rem;
+            color: #71717a;
+            font-size: 0.9rem;
+            border-top: 1px solid #27272a;
+        }
+
+        footer a {
+            color: #a1a1aa;
+            text-decoration: none;
+        }
+
+        footer a:hover {
+            color: #fff;
+        }
+    </style>
+</head>
+<body>
+    <nav>
+        <div class="nav-content">
+            <div class="nav-brand">AI Street</div>
+            <ul class="nav-links">
+                <li><a href="index.html">Home</a></li>
+                <li><a href="calendar.html">Calendar</a></li>
+                <li><a href="report.html">Report</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <div class="hero">
+        <h1>Compute Demand Intelligence</h1>
+        <p class="subtitle">
+            Track AI infrastructure demand signals from SEC filings of major tech companies
+        </p>
+    </div>
+
+    <div class="stats-grid">
+        <div class="stat-card">
+            <div class="stat-label">Total Signals</div>
+            <div class="stat-value">127</div>
+            <div class="stat-description">Extracted from recent filings</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-label">Companies Tracked</div>
+            <div class="stat-value">11</div>
+            <div class="stat-description">Major tech & infrastructure</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-label">Recent Filings</div>
+            <div class="stat-value">10</div>
+            <div class="stat-description">10-Q, 10-K, 8-K forms</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-label">Last Updated</div>
+            <div class="stat-value">Jan 11</div>
+            <div class="stat-description">2026</div>
+        </div>
+    </div>
+
+    <div class="cta-section">
+        <div class="cta-grid">
+            <a href="calendar.html" class="cta-card">
+                <div class="cta-icon">📅</div>
+                <div class="cta-title">Calendar View</div>
+                <div class="cta-description">
+                    Browse signals organized by filing date with visual indicators for constraint types and upcoming earnings predictions
+                </div>
+            </a>
+            <a href="report.html" class="cta-card">
+                <div class="cta-icon">📊</div>
+                <div class="cta-title">Detailed Report</div>
+                <div class="cta-description">
+                    View comprehensive analysis with signal breakdowns, top insights, and company-by-company summaries with direct SEC links
+                </div>
+            </a>
+        </div>
+    </div>
+
+    <div style="max-width: 1400px; margin: 0 auto; padding: 0 2rem;">
+        <div class="about-section">
+            <h2 class="about-title">What We Track</h2>
+            <p class="about-content">
+                This platform monitors SEC filings (10-Q, 10-K, 8-K) from major technology and infrastructure companies
+                to extract signals about compute demand trends. We analyze statements about:
+            </p>
+            <ul style="color: #d4d4d8; font-size: 1.05rem; line-height: 2; list-style-position: inside;">
+                <li><strong style="color: #fff;">Demand Direction:</strong> Is compute demand increasing, decreasing, or staying flat?</li>
+                <li><strong style="color: #fff;">Infrastructure Constraints:</strong> Power, chip availability, networking, datacenter capacity</li>
+                <li><strong style="color: #fff;">Infrastructure Segments:</strong> AI training, AI inference, general compute</li>
+                <li><strong style="color: #fff;">Market Dynamics:</strong> Pricing trends and time horizons</li>
+            </ul>
+
+            <h3 style="font-size: 1.5rem; color: #fff; margin-top: 2rem; margin-bottom: 1rem;">Companies Monitored</h3>
+            <div class="companies-grid">
+                <div class="company-badge">Microsoft</div>
+                <div class="company-badge">Alphabet</div>
+                <div class="company-badge">Amazon</div>
+                <div class="company-badge">Meta</div>
+                <div class="company-badge">NVIDIA</div>
+                <div class="company-badge">AMD</div>
+                <div class="company-badge">Broadcom</div>
+                <div class="company-badge">Arista Networks</div>
+                <div class="company-badge">Equinix</div>
+                <div class="company-badge">Digital Realty</div>
+                <div class="company-badge">Vertiv</div>
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        <p>Data sourced from <a href="https://www.sec.gov/edgar" target="_blank" rel="noopener">SEC EDGAR</a> | Generated automatically via rule-based extraction</p>
+        <p style="margin-top: 0.5rem;">AI Street Compute Demand Intelligence</p>
+    </footer>
+</body>
+</html>
