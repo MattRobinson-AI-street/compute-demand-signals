@@ -15,7 +15,7 @@ from aistreet.db.repository import (
 from aistreet.extraction.rule_based import RuleBasedExtractor
 from aistreet.reporting.calendar import generate_and_save_calendar
 from aistreet.reporting.earnings_predictor import predict_upcoming_filings
-from aistreet.reporting.generator import generate_and_save_report, generate_and_save_html_report
+from aistreet.reporting.generator import generate_and_save_report, generate_and_save_html_report, generate_and_save_index
 from aistreet.sec.ingest import ingest_filings, parse_lookback_period
 
 
@@ -150,6 +150,11 @@ def report(since: str):
     html_path = DATA_DIR.parent / "reports" / "report.html"
     html_report_path = generate_and_save_html_report(str(html_path), since_date)
     click.echo(f"HTML report: {html_report_path}")
+
+    # Generate and save index page (uses all signals, not filtered)
+    index_path = DATA_DIR.parent / "docs" / "index.html"
+    index_html_path = generate_and_save_index(str(index_path))
+    click.echo(f"Index page: {index_html_path}")
 
 
 @cli.command()

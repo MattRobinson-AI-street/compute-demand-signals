@@ -14,7 +14,8 @@
       "Bash(git branch:*)",
       "Bash(git commit:*)",
       "Bash(git push:*)",
-      "Bash(git remote add:*)"
+      "Bash(git remote add:*)",
+      "Bash(find:*)"
     ]
   }
 }

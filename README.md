@@ -88,15 +88,20 @@ python3 -m venv venv
 source venv/bin/activate  # On Windows: venv\Scripts\activate
 ```
 
-2. Install dependencies:
+2. Install the package and dependencies:
 
 ```bash
-pip install requests beautifulsoup4 click lxml
+pip install -e .
 ```
 
 For development (includes pytest):
 ```bash
-pip install requests beautifulsoup4 click lxml pytest
+pip install -e ".[dev]"
+```
+
+**Alternative (manual install)**: If you prefer not to install as a package:
+```bash
+pip install requests beautifulsoup4 click lxml
 ```
 
 ## Quick Start
@@ -104,7 +109,7 @@ pip install requests beautifulsoup4 click lxml pytest
 ### Run Everything at Once
 
 ```bash
-python -m aistreet run-all --since 90d
+python -m aistreet run_all --since 90d
 ```
 
 This single command:
@@ -113,6 +118,8 @@ This single command:
 3. Generates a report at `reports/weekly_report.md`
 
 **First-time users**: Start with 90 days to get meaningful data. The system is rate-limited and respectful of SEC servers.
+
+**Common error**: If you see `Error: No such command`, ensure you're using an underscore (`run_all`) not a hyphen.
 
 ### What You'll See
 
@@ -217,7 +224,7 @@ Options:
 All three steps in one command:
 
 ```bash
-python -m aistreet run-all --since 90d
+python -m aistreet run_all --since 90d
 ```
 
 **When to use**: Weekly updates, initial setup, or after modifying the universe.

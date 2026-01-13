@@ -244,9 +244,10 @@ def get_signals_with_sources(since_date: Optional[str] = None) -> list[dict]:
     return [dict(row) for row in rows]
 
 
-def get_signal_stats() -> dict[str, dict[str, int]]:
+def get_signal_stats(since_date: Optional[str] = None) -> dict[str, dict[str, int]]:
     """
     Get signal statistics.
+    If since_date is provided (ISO format), filter sources by filing_date >= since_date.
     Returns dict with counts by demand_direction and constraint_type.
     """
     conn = get_connection()
@@ -254,26 +255,44 @@ def get_signal_stats() -> dict[str, dict[str, int]]:
 
     stats = {"demand_direction": {}, "constraint_type": {}}
 
+    # Build WHERE clause
+    where_clause = ""
+    params = []
+    if since_date:
+        where_clause = """
+            WHERE signal_id IN (
+                SELECT s.signal_id
+                FROM signals s
+                JOIN sources src ON s.source_id = src.source_id
+                WHERE src.filing_date >= ?
+            )
+        """
+        params = [since_date]
+
     # Count by demand direction
     cursor.execute(
-        """
+        f"""
         SELECT demand_direction, COUNT(*) as count
         FROM signals
+        {where_clause}
         GROUP BY demand_direction
         ORDER BY count DESC
-        """
+        """,
+        params
     )
     for row in cursor.fetchall():
         stats["demand_direction"][row["demand_direction"]] = row["count"]
 
     # Count by constraint type
     cursor.execute(
-        """
+        f"""
         SELECT constraint_type, COUNT(*) as count
         FROM signals
+        {where_clause}
         GROUP BY constraint_type
         ORDER BY count DESC
-        """
+        """,
+        params
     )
     for row in cursor.fetchall():
         stats["constraint_type"][row["constraint_type"]] = row["count"]
