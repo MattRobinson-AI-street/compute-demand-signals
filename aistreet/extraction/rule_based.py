@@ -73,12 +73,21 @@ class RuleBasedExtractor(Extractor):
         for i, sentence in enumerate(sentences):
             sentence_lower = sentence.lower()
 
+            # Skip very long sentences (likely tables/lists)
+            if len(sentence) > 600:
+                continue
+
             # Skip SEC boilerplate
             if any(pattern in sentence_lower for pattern in self.BOILERPLATE_PATTERNS):
                 continue
 
-            # Skip risk factors and conditional statements
-            if any(word in sentence_lower for word in ['if ', 'could ', 'would ', 'may ', 'might ', 'any shortage', 'any supply', 'adversely', 'risk that', 'risk of']):
+            # Skip risk factors and hypotheticals
+            if 'adversely' in sentence_lower or 'adverse' in sentence_lower:
+                continue
+            if 'any shortage' in sentence_lower or 'any supply' in sentence_lower or 'any constraint' in sentence_lower:
+                continue
+            # Skip sentences that are clearly hypothetical
+            if sentence_lower.startswith('if ') or ' if component' in sentence_lower or ' if we ' in sentence_lower:
                 continue
 
             # Must contain compute-related terms to be relevant

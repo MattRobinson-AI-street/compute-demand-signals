@@ -1,6 +1,6 @@
 """Keyword patterns and rules for signal extraction."""
 
-# Demand and capacity indicators (factual statements)
+# Demand indicators - capacity tight/constrained
 DEMAND_UP_KEYWORDS = {
     "strong demand",
     "driven by strong demand",
@@ -9,51 +9,67 @@ DEMAND_UP_KEYWORDS = {
     "exceptional demand",
     "record demand",
     "increased demand",
+    "increasing demand",
     "growing demand",
     "demand growth",
     "demand continues",
     "demand remained strong",
-    "driven by strong",
+    "demand increased",
+    "higher demand",
     "shortage",
     "shortages",
     "supply constrained",
     "supply constraints",
     "capacity constrained",
     "capacity constraints",
+    "constrained by",
     "limited availability",
     "tight supply",
     "remains constrained",
-    "continues to be constrained",
-}
-
-# Capacity slack indicators (loose/abundant)
-DEMAND_DOWN_KEYWORDS = {
-    "excess capacity",
-    "spare capacity",
-    "underutilized",
-    "available capacity",
-    "abundant supply",
-    "ample supply",
-    "oversupply",
-    "surplus",
-    "excess inventory",
-    "readily available",
-    "slack",
-    "unused capacity",
-    "idle capacity",
-}
-
-# Capacity expansion/contraction indicators
-DEMAND_FLAT_KEYWORDS = {
+    "supply remained tight",
+    "sold out",
+    "backlog",
+    "wait times",
+    "lead times increased",
     "expanding capacity",
     "capacity expansion",
     "adding capacity",
     "building capacity",
-    "increasing capacity",
-    "capacity additions",
-    "new capacity",
+    "increased capacity",
+}
+
+# Demand slack indicators - capacity loose/declining
+DEMAND_DOWN_KEYWORDS = {
+    "declining demand",
+    "decreased demand",
+    "lower demand",
+    "weakening demand",
+    "softening demand",
+    "demand declined",
+    "demand decreased",
+    "excess capacity",
+    "spare capacity",
+    "underutilized",
+    "abundant supply",
+    "ample supply",
+    "oversupply",
+    "readily available",
+    "slack capacity",
+    "unused capacity",
+    "idle capacity",
     "reducing capacity",
     "capacity reduction",
+}
+
+# Demand stable indicators
+DEMAND_FLAT_KEYWORDS = {
+    "stable demand",
+    "steady demand",
+    "consistent demand",
+    "demand remained stable",
+    "demand was stable",
+    "maintained capacity",
+    "maintaining capacity",
 }
 
 # Compute-related terms (signal relevance)
