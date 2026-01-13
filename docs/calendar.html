@@ -1,0 +1,1067 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Compute Demand Calendar</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: #0a0e27;
+            color: #e4e4e7;
+            padding: 2rem;
+        }
+
+        .header {
+            max-width: 1400px;
+            margin: 0 auto 2rem;
+        }
+
+        h1 {
+            font-size: 2rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: #fff;
+        }
+
+        .subtitle {
+            color: #a1a1aa;
+            font-size: 0.95rem;
+        }
+
+        .stats {
+            display: flex;
+            gap: 2rem;
+            margin-top: 1rem;
+        }
+
+        .stat {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .stat-label {
+            color: #71717a;
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .stat-value {
+            color: #fff;
+            font-size: 1.5rem;
+            font-weight: 600;
+        }
+
+        .timeline {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .week {
+            margin-bottom: 2rem;
+        }
+
+        .week-header {
+            font-size: 0.85rem;
+            color: #71717a;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 1rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 1px solid #27272a;
+        }
+
+        .day {
+            background: #18181b;
+            border: 1px solid #27272a;
+            border-radius: 8px;
+            padding: 1.25rem;
+            margin-bottom: 0.75rem;
+            transition: border-color 0.2s;
+        }
+
+        .day:hover {
+            border-color: #3f3f46;
+        }
+
+        .day-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .date {
+            font-weight: 600;
+            font-size: 1.1rem;
+            color: #fff;
+        }
+
+        .day-stats {
+            display: flex;
+            gap: 1rem;
+            font-size: 0.85rem;
+            color: #a1a1aa;
+        }
+
+        .filings {
+            display: grid;
+            gap: 0.75rem;
+        }
+
+        .filing {
+            background: #1f1f23;
+            border-left: 3px solid #3b82f6;
+            padding: 1rem;
+            border-radius: 4px;
+        }
+
+        .filing.capacity {
+            border-left-color: #f59e0b;
+        }
+
+        .filing.power {
+            border-left-color: #ef4444;
+        }
+
+        .filing.chips {
+            border-left-color: #8b5cf6;
+        }
+
+        .filing.networking {
+            border-left-color: #06b6d4;
+        }
+
+        .filing-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: start;
+            margin-bottom: 0.75rem;
+        }
+
+        .company-name {
+            font-weight: 600;
+            font-size: 1rem;
+            color: #fff;
+        }
+
+        .form-type {
+            background: #27272a;
+            padding: 0.25rem 0.75rem;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            font-weight: 500;
+            color: #a1a1aa;
+        }
+
+        .signals {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .signal {
+            font-size: 0.9rem;
+            color: #d4d4d8;
+            padding-left: 1rem;
+            border-left: 2px solid #3f3f46;
+        }
+
+        .signal-meta {
+            display: flex;
+            gap: 0.75rem;
+            margin-bottom: 0.25rem;
+            font-size: 0.8rem;
+        }
+
+        .badge {
+            padding: 0.15rem 0.5rem;
+            border-radius: 3px;
+            font-size: 0.75rem;
+            font-weight: 500;
+        }
+
+        .badge.demand-up {
+            background: #14532d;
+            color: #86efac;
+        }
+
+        .badge.demand-down {
+            background: #7f1d1d;
+            color: #fca5a5;
+        }
+
+        .badge.constraint {
+            background: #422006;
+            color: #fbbf24;
+        }
+
+        .badge.confidence {
+            background: #1e3a8a;
+            color: #93c5fd;
+        }
+
+        .quote {
+            color: #a1a1aa;
+            font-size: 0.85rem;
+            line-height: 1.5;
+            margin-top: 0.5rem;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 4rem 2rem;
+            color: #71717a;
+        }
+
+        .legend {
+            max-width: 1400px;
+            margin: 2rem auto 0;
+            padding: 1.5rem;
+            background: #18181b;
+            border: 1px solid #27272a;
+            border-radius: 8px;
+        }
+
+        .legend-title {
+            font-size: 0.85rem;
+            color: #71717a;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 1rem;
+        }
+
+        .legend-items {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1.5rem;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .legend-color {
+            width: 20px;
+            height: 3px;
+            border-radius: 2px;
+        }
+
+        .legend-label {
+            font-size: 0.85rem;
+            color: #a1a1aa;
+        }
+
+        .upcoming-section {
+            max-width: 1400px;
+            margin: 2rem auto;
+            padding: 1.5rem;
+            background: #18181b;
+            border: 1px solid #27272a;
+            border-radius: 8px;
+        }
+
+        .section-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: #fff;
+            margin-bottom: 1rem;
+        }
+
+        .upcoming-filing {
+            background: #1f1f23;
+            border-left: 3px solid #6366f1;
+            padding: 1rem;
+            border-radius: 4px;
+            margin-bottom: 0.75rem;
+        }
+
+        .upcoming-filing:hover {
+            background: #27272a;
+        }
+
+        .upcoming-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.5rem;
+        }
+
+        .upcoming-date {
+            font-size: 0.9rem;
+            color: #a1a1aa;
+        }
+
+        .estimated-badge {
+            background: #1e3a8a;
+            color: #93c5fd;
+            padding: 0.15rem 0.5rem;
+            border-radius: 3px;
+            font-size: 0.75rem;
+            font-weight: 500;
+        }
+
+        .divider {
+            height: 1px;
+            background: #27272a;
+            max-width: 1400px;
+            margin: 3rem auto;
+        }
+
+        nav {
+            background: #18181b;
+            border-bottom: 1px solid #27272a;
+            padding: 1rem 2rem;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .nav-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .nav-brand {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: #fff;
+            text-decoration: none;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 2rem;
+            list-style: none;
+        }
+
+        .nav-links a {
+            color: #a1a1aa;
+            text-decoration: none;
+            transition: color 0.2s;
+            font-weight: 500;
+        }
+
+        .nav-links a:hover {
+            color: #fff;
+        }
+
+        .nav-links a.active {
+            color: #3b82f6;
+        }
+
+        .sec-link {
+            color: #3b82f6;
+            text-decoration: none;
+            font-size: 0.8rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.25rem;
+            transition: color 0.2s;
+        }
+
+        .sec-link:hover {
+            color: #60a5fa;
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <nav>
+        <div class="nav-content">
+            <a href="index.html" class="nav-brand">AI Street</a>
+            <ul class="nav-links">
+                <li><a href="index.html">Home</a></li>
+                <li><a href="calendar.html" class="active">Calendar</a></li>
+                <li><a href="report.html">Report</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <div class="header">
+        <h1>Compute Demand Calendar</h1>
+        <p class="subtitle">Generated January 13, 2026 at 09:26 UTC</p>
+        <div class="stats">
+            <div class="stat">
+                <span class="stat-label">Total Signals</span>
+                <span class="stat-value">127</span>
+            </div>
+            <div class="stat">
+                <span class="stat-label">Companies</span>
+                <span class="stat-value">11</span>
+            </div>
+            <div class="stat">
+                <span class="stat-label">Filings</span>
+                <span class="stat-value">10</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="upcoming-section">
+        <div class="section-title">📅 Expected Filings (Next 60 Days)</div>
+
+        <div class="upcoming-filing">
+            <div class="upcoming-header">
+                <div class="company-name">NVIDIA CORP</div>
+                <div style="display: flex; gap: 0.5rem; align-items: center;">
+                    <span class="form-type">10-K</span>
+                    <span class="estimated-badge">estimated</span>
+                </div>
+            </div>
+            <div class="upcoming-date">Saturday, March 07, 2026 (In 7 weeks)</div>
+            <div class="upcoming-date" style="font-size: 0.8rem; margin-top: 0.25rem;">Quarter ending: 2026-01-31</div>
+        </div>
+
+    </div>
+
+    <div class="divider"></div>
+
+    <div class="timeline">
+        <div class="week">
+            <div class="week-header">Week of January 05, 2026</div>
+            <div class="day">
+                <div class="day-header">
+                    <div class="date">Thursday, January 08</div>
+                    <div class="day-stats">
+                        <span>1 company</span>
+                        <span>•</span>
+                        <span>4 signals</span>
+                    </div>
+                </div>
+                <div class="filings">
+                    <div class="filing ">
+                        <div class="filing-header">
+                            <div class="company-name">ACUITY INC. (DE)</div>
+                            <div style="display: flex; align-items: center; gap: 0.75rem;">
+                                <div class="form-type">10-Q</div>
+                                <a href="https://www.sec.gov/Archives/edgar/data/0001144215/000114421526000010/ayi-20251130.htm" target="_blank" rel="noopener" class="sec-link">View on SEC →</a>
+                            </div>
+                        </div>
+                        <div class="signals">
+                            <div class="signal">
+                                <div class="signal-meta">
+                                    <span class="badge demand-up">demand up</span>
+                                    
+                                    <span class="badge confidence">70%</span>
+                                </div>
+                                <div class="quote">"Yes ☑ No ☐ Indicate by check mark whether the registrant is a large accelerated filer, an accelerated filer, a non-accelerated filer, a smaller reporting company, or an emerging growth company."</div>
+                            </div>
+                            <div class="signal">
+                                <div class="signal-meta">
+                                    <span class="badge demand-up">demand up</span>
+                                    
+                                    <span class="badge confidence">70%</span>
+                                </div>
+                                <div class="quote">"See the definitions of “large accelerated filer,” “accelerated filer,” “smaller reporting company,” and “emerging growth company” in Rule 12b-2 of the Exchange Act."</div>
+                            </div>
+                            <div class="signal">
+                                <div class="signal-meta">
+                                    <span class="badge demand-up">demand up</span>
+                                    
+                                    <span class="badge confidence">70%</span>
+                                </div>
+                                <div class="quote">"Large accelerated filer ☑ Accelerated filer ☐ Non-accelerated filer ☐ Smaller reporting company ☐ Emerging growth company ☐ If an emerging growth company, indicate by check mark if the registrant has ..."</div>
+                            </div>
+                            <div class="signal" style="opacity: 0.6; font-size: 0.85rem;">
+                                +1 more signals
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+    </div>
+        <div class="week">
+            <div class="week-header">Week of December 15, 2025</div>
+            <div class="day">
+                <div class="day-header">
+                    <div class="date">Thursday, December 18</div>
+                    <div class="day-stats">
+                        <span>1 company</span>
+                        <span>•</span>
+                        <span>25 signals</span>
+                    </div>
+                </div>
+                <div class="filings">
+                    <div class="filing ">
+                        <div class="filing-header">
+                            <div class="company-name">Broadcom Inc.</div>
+                            <div style="display: flex; align-items: center; gap: 0.75rem;">
+                                <div class="form-type">10-K</div>
+                                <a href="https://www.sec.gov/Archives/edgar/data/0001730168/000173016825000121/avgo-20251102.htm" target="_blank" rel="noopener" class="sec-link">View on SEC →</a>
+                            </div>
+                        </div>
+                        <div class="signals">
+                            <div class="signal">
+                                <div class="signal-meta">
+                                    <span class="badge demand-up">demand up</span>
+                                    <span class='badge constraint'>networking</span>
+                                    <span class="badge confidence">85%</span>
+                                </div>
+                                <div class="quote">"In addition, our solutions enable accelerated compute and networking connectivity at scale, within and across AI server racks and across AI data center sites."</div>
+                            </div>
+                            <div class="signal">
+                                <div class="signal-meta">
+                                    <span class="badge demand-up">demand up</span>
+                                    <span class='badge constraint'>chips</span>
+                                    <span class="badge confidence">85%</span>
+                                </div>
+                                <div class="quote">"Our AI semiconductor solutions include custom accelerators or XPUs, Ethernet switching and routing silicon, Ethernet NICs, physical layer devices (“PHYs”) and optical components, as well as racks and ..."</div>
+                            </div>
+                            <div class="signal">
+                                <div class="signal-meta">
+                                    <span class="badge demand-up">demand up</span>
+                                    <span class='badge constraint'>chips</span>
+                                    <span class="badge confidence">85%</span>
+                                </div>
+                                <div class="quote">"We develop semiconductor products that enable accelerated compute and networking connectivity deployed in enterprise and AI data centers and service providers for their workloads."</div>
+                            </div>
+                            <div class="signal" style="opacity: 0.6; font-size: 0.85rem;">
+                                +22 more signals
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+    </div>
+        <div class="week">
+            <div class="week-header">Week of November 17, 2025</div>
+            <div class="day">
+                <div class="day-header">
+                    <div class="date">Friday, November 21</div>
+                    <div class="day-stats">
+                        <span>1 company</span>
+                        <span>•</span>
+                        <span>1 signal</span>
+                    </div>
+                </div>
+                <div class="filings">
+                    <div class="filing ">
+                        <div class="filing-header">
+                            <div class="company-name">DIGITAL REALTY TRUST, INC.</div>
+                            <div style="display: flex; align-items: center; gap: 0.75rem;">
+                                <div class="form-type">8-K</div>
+                                <a href="https://www.sec.gov/Archives/edgar/data/0001297996/000119312525290086/d30418d8k.htm" target="_blank" rel="noopener" class="sec-link">View on SEC →</a>
+                            </div>
+                        </div>
+                        <div class="signals">
+                            <div class="signal">
+                                <div class="signal-meta">
+                                    <span class="badge demand-up">demand up</span>
+                                    
+                                    <span class="badge confidence">70%</span>
+                                </div>
+                                <div class="quote">"Certain events are considered events of default, which may result in the accelerated maturity of the 2033 Notes or the 2037 Notes, including: • a default for 30 days in payment of any installment of i..."</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="day">
+                <div class="day-header">
+                    <div class="date">Wednesday, November 19</div>
+                    <div class="day-stats">
+                        <span>1 company</span>
+                        <span>•</span>
+                        <span>15 signals</span>
+                    </div>
+                </div>
+                <div class="filings">
+                    <div class="filing ">
+                        <div class="filing-header">
+                            <div class="company-name">NVIDIA CORP</div>
+                            <div style="display: flex; align-items: center; gap: 0.75rem;">
+                                <div class="form-type">10-Q</div>
+                                <a href="https://www.sec.gov/Archives/edgar/data/0001045810/000104581025000230/nvda-20251026.htm" target="_blank" rel="noopener" class="sec-link">View on SEC →</a>
+                            </div>
+                        </div>
+                        <div class="signals">
+                            <div class="signal">
+                                <div class="signal-meta">
+                                    <span class="badge demand-up">demand up</span>
+                                    <span class='badge constraint'>networking</span>
+                                    <span class="badge confidence">85%</span>
+                                </div>
+                                <div class="quote">"The Compute & Networking segment includes our Data Center accelerated computing platforms and artificial intelligence, or AI, solutions and software; networking; automotive platforms and autonomous an..."</div>
+                            </div>
+                            <div class="signal">
+                                <div class="signal-meta">
+                                    <span class="badge demand-up">demand up</span>
+                                    <span class='badge constraint'>networking</span>
+                                    <span class="badge confidence">85%</span>
+                                </div>
+                                <div class="quote">"Recent Developments, Future Objectives and Challenges Revenue growth in the third quarter was driven by data center compute and networking platforms for accelerated computing and AI solutions."</div>
+                            </div>
+                            <div class="signal">
+                                <div class="signal-meta">
+                                    <span class="badge demand-up">demand up</span>
+                                    <span class='badge constraint'>power</span>
+                                    <span class="badge confidence">85%</span>
+                                </div>
+                                <div class="quote">"Data Center revenue was $51.2 billion, up 66% from a year ago and up 25% sequentially, driven by three platform shifts –accelerated computing, powerful AI models, and agentic applications."</div>
+                            </div>
+                            <div class="signal" style="opacity: 0.6; font-size: 0.85rem;">
+                                +12 more signals
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+    </div>
+        <div class="week">
+            <div class="week-header">Week of November 03, 2025</div>
+            <div class="day">
+                <div class="day-header">
+                    <div class="date">Wednesday, November 05</div>
+                    <div class="day-stats">
+                        <span>1 company</span>
+                        <span>•</span>
+                        <span>22 signals</span>
+                    </div>
+                </div>
+                <div class="filings">
+                    <div class="filing ">
+                        <div class="filing-header">
+                            <div class="company-name">ADVANCED MICRO DEVICES INC</div>
+                            <div style="display: flex; align-items: center; gap: 0.75rem;">
+                                <div class="form-type">10-Q</div>
+                                <a href="https://www.sec.gov/Archives/edgar/data/0000002488/000000248825000166/amd-20250927.htm" target="_blank" rel="noopener" class="sec-link">View on SEC →</a>
+                            </div>
+                        </div>
+                        <div class="signals">
+                            <div class="signal">
+                                <div class="signal-meta">
+                                    <span class="badge demand-up">demand up</span>
+                                    <span class='badge constraint'>chips</span>
+                                    <span class="badge confidence">85%</span>
+                                </div>
+                                <div class="quote">"AMD’s products include Artificial Intelligence (AI) accelerators, microprocessors (CPUs) for servers and graphics processing units (GPUs) as standalone devices or as incorporated into accelerated proc..."</div>
+                            </div>
+                            <div class="signal">
+                                <div class="signal-meta">
+                                    <span class="badge demand-up">demand up</span>
+                                    <span class='badge constraint'>chips</span>
+                                    <span class="badge confidence">85%</span>
+                                </div>
+                                <div class="quote">"The Company’s three reportable segments are: • the Data Center segment, which primarily includes Artificial Intelligence (AI) accelerators, microprocessors (CPUs) for servers, graphics processing unit..."</div>
+                            </div>
+                            <div class="signal">
+                                <div class="signal-meta">
+                                    <span class="badge demand-up">demand up</span>
+                                    <span class='badge constraint'>power</span>
+                                    <span class="badge confidence">85%</span>
+                                </div>
+                                <div class="quote">"The acquisition is expected to enable the Company to deliver end-to-end AI solutions and accelerate the design and deployment of AMD-powered AI infrastructure at scale optimized for the cloud. 12 Tabl..."</div>
+                            </div>
+                            <div class="signal" style="opacity: 0.6; font-size: 0.85rem;">
+                                +19 more signals
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="day">
+                <div class="day-header">
+                    <div class="date">Monday, November 03</div>
+                    <div class="day-stats">
+                        <span>1 company</span>
+                        <span>•</span>
+                        <span>4 signals</span>
+                    </div>
+                </div>
+                <div class="filings">
+                    <div class="filing ">
+                        <div class="filing-header">
+                            <div class="company-name">PUBLIC SERVICE ENTERPRISE GROUP INC</div>
+                            <div style="display: flex; align-items: center; gap: 0.75rem;">
+                                <div class="form-type">10-Q</div>
+                                <a href="https://www.sec.gov/Archives/edgar/data/0000788784/000119312525262643/peg-20250930.htm" target="_blank" rel="noopener" class="sec-link">View on SEC →</a>
+                            </div>
+                        </div>
+                        <div class="signals">
+                            <div class="signal">
+                                <div class="signal-meta">
+                                    <span class="badge demand-up">demand up</span>
+                                    <span class='badge constraint'>power</span>
+                                    <span class="badge confidence">85%</span>
+                                </div>
+                                <div class="quote">"New Jersey Clean Energy Stakeholder Proceedings In February 2023, the governor of New Jersey issued executive orders (EOs) that establish or accelerate previously established 2050 targets for clean-so..."</div>
+                            </div>
+                            <div class="signal">
+                                <div class="signal-meta">
+                                    <span class="badge demand-up">demand up</span>
+                                    
+                                    <span class="badge confidence">70%</span>
+                                </div>
+                                <div class="quote">"Yes ☒ No ☐ Indicate by check mark whether each registrant is a large accelerated filer, an accelerated filer, a non-accelerated filer, smaller reporting company, or an emerging growth company."</div>
+                            </div>
+                            <div class="signal">
+                                <div class="signal-meta">
+                                    <span class="badge demand-up">demand up</span>
+                                    
+                                    <span class="badge confidence">70%</span>
+                                </div>
+                                <div class="quote">"See the definitions of “large accelerated filer,” “accelerated filer,” “smaller reporting company,” and “emerging growth company” in Rule 12b-2 of the Exchange Act."</div>
+                            </div>
+                            <div class="signal" style="opacity: 0.6; font-size: 0.85rem;">
+                                +1 more signals
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+    </div>
+        <div class="week">
+            <div class="week-header">Week of October 27, 2025</div>
+            <div class="day">
+                <div class="day-header">
+                    <div class="date">Friday, October 31</div>
+                    <div class="day-stats">
+                        <span>2 companies</span>
+                        <span>•</span>
+                        <span>13 signals</span>
+                    </div>
+                </div>
+                <div class="filings">
+                    <div class="filing ">
+                        <div class="filing-header">
+                            <div class="company-name">AMAZON COM INC</div>
+                            <div style="display: flex; align-items: center; gap: 0.75rem;">
+                                <div class="form-type">10-Q</div>
+                                <a href="https://www.sec.gov/Archives/edgar/data/0001018724/000101872425000123/amzn-20250930.htm" target="_blank" rel="noopener" class="sec-link">View on SEC →</a>
+                            </div>
+                        </div>
+                        <div class="signals">
+                            <div class="signal">
+                                <div class="signal-meta">
+                                    <span class="badge demand-up">demand up</span>
+                                    
+                                    <span class="badge confidence">70%</span>
+                                </div>
+                                <div class="quote">"Yes ☒ No ☐ Indicate by check mark whether the registrant is a large accelerated filer, an accelerated filer, a non-accelerated filer, a smaller reporting company, or an emerging growth company."</div>
+                            </div>
+                            <div class="signal">
+                                <div class="signal-meta">
+                                    <span class="badge demand-up">demand up</span>
+                                    
+                                    <span class="badge confidence">70%</span>
+                                </div>
+                                <div class="quote">"See the definitions of “large accelerated filer,” “accelerated filer,” “smaller reporting company,” and “emerging growth company” in Rule 12b-2 of the Exchange Act."</div>
+                            </div>
+                            <div class="signal">
+                                <div class="signal-meta">
+                                    <span class="badge demand-up">demand up</span>
+                                    
+                                    <span class="badge confidence">70%</span>
+                                </div>
+                                <div class="quote">"Large accelerated filer ☒ Accelerated filer ☐ Non-accelerated filer ☐ Smaller reporting company ☐ Emerging growth company ☐ If an emerging growth company, indicate by check mark if the registrant has ..."</div>
+                            </div>
+                            <div class="signal" style="opacity: 0.6; font-size: 0.85rem;">
+                                +4 more signals
+                            </div>
+                        </div>
+                    </div>
+                    <div class="filing ">
+                        <div class="filing-header">
+                            <div class="company-name">DIGITAL REALTY TRUST, INC.</div>
+                            <div style="display: flex; align-items: center; gap: 0.75rem;">
+                                <div class="form-type">10-Q</div>
+                                <a href="https://www.sec.gov/Archives/edgar/data/0001297996/000110465925104945/dlr-20250930x10q.htm" target="_blank" rel="noopener" class="sec-link">View on SEC →</a>
+                            </div>
+                        </div>
+                        <div class="signals">
+                            <div class="signal">
+                                <div class="signal-meta">
+                                    <span class="badge demand-down">demand down</span>
+                                    <span class='badge constraint'>power</span>
+                                    <span class="badge confidence">85%</span>
+                                </div>
+                                <div class="quote">"The following factors, among others, could cause actual results and future events to differ materially from those set forth or contemplated in the forward-looking statements: reduced demand for data c..."</div>
+                            </div>
+                            <div class="signal">
+                                <div class="signal-meta">
+                                    <span class="badge demand-up">demand up</span>
+                                    <span class='badge constraint'>power</span>
+                                    <span class="badge confidence">85%</span>
+                                </div>
+                                <div class="quote">"All rates were calculated in the local currency of each contract and then converted to USD based on average exchange rates for the period presented. (3) Excludes short-term leases. (4) Commencement da..."</div>
+                            </div>
+                            <div class="signal">
+                                <div class="signal-meta">
+                                    <span class="badge demand-up">demand up</span>
+                                    
+                                    <span class="badge confidence">70%</span>
+                                </div>
+                                <div class="quote">"Yes ⌧ No ◻ Digital Realty Trust, L.P. ​ Yes ⌧ No ◻ ​ Indicate by check mark whether the registrant is a large accelerated filer, an accelerated filer, a non-accelerated filer, a smaller reporting comp..."</div>
+                            </div>
+                            <div class="signal" style="opacity: 0.6; font-size: 0.85rem;">
+                                +3 more signals
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="day">
+                <div class="day-header">
+                    <div class="date">Thursday, October 30</div>
+                    <div class="day-stats">
+                        <span>2 companies</span>
+                        <span>•</span>
+                        <span>9 signals</span>
+                    </div>
+                </div>
+                <div class="filings">
+                    <div class="filing ">
+                        <div class="filing-header">
+                            <div class="company-name">Alphabet Inc.</div>
+                            <div style="display: flex; align-items: center; gap: 0.75rem;">
+                                <div class="form-type">10-Q</div>
+                                <a href="https://www.sec.gov/Archives/edgar/data/0001652044/000165204425000091/goog-20250930.htm" target="_blank" rel="noopener" class="sec-link">View on SEC →</a>
+                            </div>
+                        </div>
+                        <div class="signals">
+                            <div class="signal">
+                                <div class="signal-meta">
+                                    <span class="badge demand-up">demand up</span>
+                                    
+                                    <span class="badge confidence">70%</span>
+                                </div>
+                                <div class="quote">"Yes ☒ No ☐ Indicate by check mark whether the registrant is a large accelerated filer, an accelerated filer, a non-accelerated filer, a smaller reporting company, or an emerging growth company."</div>
+                            </div>
+                            <div class="signal">
+                                <div class="signal-meta">
+                                    <span class="badge demand-up">demand up</span>
+                                    
+                                    <span class="badge confidence">70%</span>
+                                </div>
+                                <div class="quote">"See the definitions of “large accelerated filer,” “accelerated filer,” “smaller reporting company,” and "emerging growth company" in Rule 12b-2 of the Exchange Act."</div>
+                            </div>
+                            <div class="signal">
+                                <div class="signal-meta">
+                                    <span class="badge demand-up">demand up</span>
+                                    
+                                    <span class="badge confidence">70%</span>
+                                </div>
+                                <div class="quote">"Large accelerated filer ☒ Accelerated filer ☐ Non-accelerated filer ☐ Smaller reporting company ☐ Emerging growth company ☐ If an emerging growth company, indicate by check mark if the registrant has ..."</div>
+                            </div>
+                            <div class="signal" style="opacity: 0.6; font-size: 0.85rem;">
+                                +3 more signals
+                            </div>
+                        </div>
+                    </div>
+                    <div class="filing ">
+                        <div class="filing-header">
+                            <div class="company-name">Meta Platforms, Inc.</div>
+                            <div style="display: flex; align-items: center; gap: 0.75rem;">
+                                <div class="form-type">10-Q</div>
+                                <a href="https://www.sec.gov/Archives/edgar/data/0001326801/000162828025047240/meta-20250930.htm" target="_blank" rel="noopener" class="sec-link">View on SEC →</a>
+                            </div>
+                        </div>
+                        <div class="signals">
+                            <div class="signal">
+                                <div class="signal-meta">
+                                    <span class="badge demand-up">demand up</span>
+                                    
+                                    <span class="badge confidence">70%</span>
+                                </div>
+                                <div class="quote">"Yes ☒    No  ☐ Indicate by check mark whether the registrant is a large accelerated filer, an accelerated filer, a non-accelerated filer, a smaller reporting company, or an emerging growth company."</div>
+                            </div>
+                            <div class="signal">
+                                <div class="signal-meta">
+                                    <span class="badge demand-up">demand up</span>
+                                    
+                                    <span class="badge confidence">70%</span>
+                                </div>
+                                <div class="quote">"See the definitions of "large accelerated filer," "accelerated filer," "smaller reporting company," and "emerging growth company" in Rule 12b-2 of the Exchange Act."</div>
+                            </div>
+                            <div class="signal">
+                                <div class="signal-meta">
+                                    <span class="badge demand-up">demand up</span>
+                                    
+                                    <span class="badge confidence">70%</span>
+                                </div>
+                                <div class="quote">"Large accelerated filer ☒ Accelerated filer ☐ Non-accelerated filer ☐ Smaller reporting company ☐ Emerging growth company ☐ If an emerging growth company, indicate by check mark if the registrant has ..."</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="day">
+                <div class="day-header">
+                    <div class="date">Wednesday, October 29</div>
+                    <div class="day-stats">
+                        <span>2 companies</span>
+                        <span>•</span>
+                        <span>23 signals</span>
+                    </div>
+                </div>
+                <div class="filings">
+                    <div class="filing ">
+                        <div class="filing-header">
+                            <div class="company-name">EQUINIX INC</div>
+                            <div style="display: flex; align-items: center; gap: 0.75rem;">
+                                <div class="form-type">10-Q</div>
+                                <a href="https://www.sec.gov/Archives/edgar/data/0001101239/000110123925000062/eqix-20250930.htm" target="_blank" rel="noopener" class="sec-link">View on SEC →</a>
+                            </div>
+                        </div>
+                        <div class="signals">
+                            <div class="signal">
+                                <div class="signal-meta">
+                                    <span class="badge demand-up">demand up</span>
+                                    <span class='badge constraint'>power</span>
+                                    <span class="badge confidence">85%</span>
+                                </div>
+                                <div class="quote">"This increased power consumption, which we expect to accelerate with the adoption of AI, has driven us to build out our new IBX data centers to support power and cooling needs twice that of previous I..."</div>
+                            </div>
+                            <div class="signal">
+                                <div class="signal-meta">
+                                    <span class="badge demand-up">demand up</span>
+                                    <span class='badge constraint'>capacity</span>
+                                    <span class="badge confidence">85%</span>
+                                </div>
+                                <div class="quote">"Expansion Opportunities: To serve the needs of the growing hyperscale data center market, including the world's largest cloud service providers and increased demand driven in part by the adoption of A..."</div>
+                            </div>
+                            <div class="signal">
+                                <div class="signal-meta">
+                                    <span class="badge demand-up">demand up</span>
+                                    <span class='badge constraint'>power</span>
+                                    <span class="badge confidence">85%</span>
+                                </div>
+                                <div class="quote">"Additional factors could include, but are not limited to: • the timing and magnitude of depreciation and interest expense or other expenses related to the acquisition, purchase or construction of addi..."</div>
+                            </div>
+                            <div class="signal" style="opacity: 0.6; font-size: 0.85rem;">
+                                +9 more signals
+                            </div>
+                        </div>
+                    </div>
+                    <div class="filing ">
+                        <div class="filing-header">
+                            <div class="company-name">MICROSOFT CORP</div>
+                            <div style="display: flex; align-items: center; gap: 0.75rem;">
+                                <div class="form-type">10-Q</div>
+                                <a href="https://www.sec.gov/Archives/edgar/data/0000789019/000119312525256321/msft-20250930.htm" target="_blank" rel="noopener" class="sec-link">View on SEC →</a>
+                            </div>
+                        </div>
+                        <div class="signals">
+                            <div class="signal">
+                                <div class="signal-meta">
+                                    <span class="badge demand-up">demand up</span>
+                                    <span class='badge constraint'>capacity</span>
+                                    <span class="badge confidence">85%</span>
+                                </div>
+                                <div class="quote">"We continue to identify and evaluate opportunities to expand our datacenter locations and increase our server capacity to meet the evolving needs of our customers, particularly given the growing deman..."</div>
+                            </div>
+                            <div class="signal">
+                                <div class="signal-meta">
+                                    <span class="badge demand-up">demand up</span>
+                                    <span class='badge constraint'>capacity</span>
+                                    <span class="badge confidence">85%</span>
+                                </div>
+                                <div class="quote">"Gross margin percentage increased driven by efficiency gains in Microsoft 365 Commercial cloud even with the impact of scaling our AI infrastructure and growing usage of AI product features. • Operati..."</div>
+                            </div>
+                            <div class="signal">
+                                <div class="signal-meta">
+                                    <span class="badge demand-up">demand up</span>
+                                    <span class='badge constraint'>capacity</span>
+                                    <span class="badge confidence">85%</span>
+                                </div>
+                                <div class="quote">"Gross margin percentage decreased driven by the impact of scaling our AI infrastructure, offset in part by efficiency gains in Azure. • Operating expenses increased $217 million or 4% driven by invest..."</div>
+                            </div>
+                            <div class="signal" style="opacity: 0.6; font-size: 0.85rem;">
+                                +8 more signals
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="day">
+                <div class="day-header">
+                    <div class="date">Monday, October 27</div>
+                    <div class="day-stats">
+                        <span>1 company</span>
+                        <span>•</span>
+                        <span>11 signals</span>
+                    </div>
+                </div>
+                <div class="filings">
+                    <div class="filing ">
+                        <div class="filing-header">
+                            <div class="company-name">ACUITY INC. (DE)</div>
+                            <div style="display: flex; align-items: center; gap: 0.75rem;">
+                                <div class="form-type">10-K</div>
+                                <a href="https://www.sec.gov/Archives/edgar/data/0001144215/000114421525000082/ayi-20250831.htm" target="_blank" rel="noopener" class="sec-link">View on SEC →</a>
+                            </div>
+                        </div>
+                        <div class="signals">
+                            <div class="signal">
+                                <div class="signal-meta">
+                                    <span class="badge demand-up">demand up</span>
+                                    
+                                    <span class="badge confidence">70%</span>
+                                </div>
+                                <div class="quote">"Yes ☑     No ☐ Indicate by check mark whether the registrant is a large accelerated filer, an accelerated filer, a non-accelerated filer, a smaller reporting company, or an emerging growth company."</div>
+                            </div>
+                            <div class="signal">
+                                <div class="signal-meta">
+                                    <span class="badge demand-up">demand up</span>
+                                    
+                                    <span class="badge confidence">70%</span>
+                                </div>
+                                <div class="quote">"See the definitions of “large accelerated filer,” “accelerated filer,” “smaller reporting company,” and “emerging growth company” in Rule 12b-2 of the Exchange Act."</div>
+                            </div>
+                            <div class="signal">
+                                <div class="signal-meta">
+                                    <span class="badge demand-up">demand up</span>
+                                    
+                                    <span class="badge confidence">70%</span>
+                                </div>
+                                <div class="quote">"Large Accelerated Filer ☑ Accelerated Filer ☐ Non-accelerated Filer ☐ Smaller Reporting Company ☐ Emerging Growth Company ☐ If an emerging growth company, indicate by check mark if the registrant has ..."</div>
+                            </div>
+                            <div class="signal" style="opacity: 0.6; font-size: 0.85rem;">
+                                +8 more signals
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+    </div>
+    </div>
+
+    <div class="legend">
+        <div class="legend-title">Constraint Types</div>
+        <div class="legend-items">
+            <div class="legend-item">
+                <div class="legend-color" style="background: #3b82f6;"></div>
+                <span class="legend-label">No constraint</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color" style="background: #f59e0b;"></div>
+                <span class="legend-label">Capacity</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color" style="background: #ef4444;"></div>
+                <span class="legend-label">Power</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color" style="background: #8b5cf6;"></div>
+                <span class="legend-label">Chips</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color" style="background: #06b6d4;"></div>
+                <span class="legend-label">Networking</span>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
