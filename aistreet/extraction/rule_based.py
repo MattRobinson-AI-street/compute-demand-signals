@@ -30,6 +30,17 @@ from aistreet.extraction.keywords import (
 class RuleBasedExtractor(Extractor):
     """Deterministic rule-based signal extraction."""
 
+    # SEC boilerplate phrases to skip
+    BOILERPLATE_PATTERNS = [
+        "large accelerated filer",
+        "accelerated filer",
+        "smaller reporting company",
+        "emerging growth company",
+        "indicate by check mark",
+        "rule 12b-2",
+        "exchange act",
+    ]
+
     def extract(self, text: str, source_id: int) -> list[Signal]:
         """
         Extract signals from text using keyword matching and proximity rules.
@@ -48,6 +59,10 @@ class RuleBasedExtractor(Extractor):
 
         for i, sentence in enumerate(sentences):
             sentence_lower = sentence.lower()
+
+            # Skip SEC boilerplate
+            if any(pattern in sentence_lower for pattern in self.BOILERPLATE_PATTERNS):
+                continue
 
             # Must contain compute-related terms to be relevant
             if not contains_any(sentence_lower, COMPUTE_KEYWORDS):
