@@ -1,30 +1,29 @@
 """Keyword patterns and rules for signal extraction."""
 
-# Capacity constraint indicators (tight/constrained)
+# Demand and capacity indicators (factual statements)
 DEMAND_UP_KEYWORDS = {
-    "capacity constrained",
-    "capacity constraints",
-    "constrained capacity",
+    "strong demand",
+    "driven by strong demand",
+    "driven by demand",
+    "robust demand",
+    "exceptional demand",
+    "record demand",
+    "increased demand",
+    "growing demand",
+    "demand growth",
+    "demand continues",
+    "demand remained strong",
+    "driven by strong",
     "shortage",
     "shortages",
     "supply constrained",
     "supply constraints",
+    "capacity constrained",
+    "capacity constraints",
     "limited availability",
     "tight supply",
-    "allocation",
-    "allocating",
-    "rationing",
-    "sold out",
-    "waiting list",
-    "lead time",
-    "backlog",
-    "constrained by",
-    "limited by",
-    "unable to meet demand",
-    "exceeded capacity",
-    "fully utilized",
-    "at capacity",
-    "capacity limitations",
+    "remains constrained",
+    "continues to be constrained",
 }
 
 # Capacity slack indicators (loose/abundant)

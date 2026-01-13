@@ -77,6 +77,10 @@ class RuleBasedExtractor(Extractor):
             if any(pattern in sentence_lower for pattern in self.BOILERPLATE_PATTERNS):
                 continue
 
+            # Skip risk factors and conditional statements
+            if any(word in sentence_lower for word in ['if ', 'could ', 'would ', 'may ', 'might ', 'any shortage', 'any supply', 'adversely', 'risk that', 'risk of']):
+                continue
+
             # Must contain compute-related terms to be relevant
             if not contains_any(sentence_lower, COMPUTE_KEYWORDS):
                 continue
