@@ -642,16 +642,21 @@ def generate_index_html() -> str:
     Returns:
         HTML content for index page
     """
+    from aistreet.db.repository import get_all_sources
+
     # Get all signals (no date filter for homepage overview)
     all_signals = get_signals_with_sources()
+
+    # Get all sources to find the most recent filing date
+    all_sources = get_all_sources()
 
     # Get unique companies and filings
     companies = set(sig['company'] for sig in all_signals)
     filings = set((sig['company'], sig['filing_date'], sig['form_type']) for sig in all_signals)
 
-    # Get the most recent filing date
-    if all_signals:
-        latest_date = max(sig['filing_date'] for sig in all_signals)
+    # Get the most recent filing date from all sources (not just signals)
+    if all_sources:
+        latest_date = all_sources[0].filing_date  # Already sorted DESC
         latest_dt = datetime.strptime(latest_date, '%Y-%m-%d')
         last_updated = latest_dt.strftime('%b %d')
         last_updated_year = latest_dt.strftime('%Y')
