@@ -612,7 +612,7 @@ def generate_html_report(since_date: Optional[str] = None) -> str:
 
     <footer>
         <p>Data sourced from SEC EDGAR | Generated automatically via rule-based extraction</p>
-        <p style="margin-top: 0.5rem;">AI Street Compute Demand Intelligence</p>
+        <p style="margin-top: 0.5rem;">AI Street Compute Capacity Constraints</p>
     </footer>
 </body>
 </html>
@@ -669,7 +669,7 @@ def generate_index_html() -> str:
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AI Street - Compute Demand Intelligence</title>
+    <title>AI Street - Compute Capacity Constraints</title>
     <style>
         * {{
             margin: 0;
@@ -896,7 +896,7 @@ def generate_index_html() -> str:
     </nav>
 
     <div class="hero">
-        <h1>Compute Demand Intelligence</h1>
+        <h1>Compute Capacity Constraints</h1>
         <p class="subtitle">
             Track AI infrastructure demand signals from SEC filings of major tech companies
         </p>
@@ -977,7 +977,7 @@ def generate_index_html() -> str:
 
     <footer>
         <p>Data sourced from SEC EDGAR | Generated automatically via rule-based extraction</p>
-        <p style="margin-top: 0.5rem;">AI Street Compute Demand Intelligence</p>
+        <p style="margin-top: 0.5rem;">AI Street Compute Capacity Constraints</p>
         <p style="margin-top: 0.5rem; font-size: 0.85rem;">Generated: {datetime.utcnow().strftime('%Y-%m-%d %H:%M UTC')}</p>
     </footer>
 </body>
