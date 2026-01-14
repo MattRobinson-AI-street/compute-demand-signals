@@ -96,6 +96,35 @@ COMPUTE_KEYWORDS = {
     "colocation",
 }
 
+# AI-specific indicators (vs general infrastructure)
+AI_SPECIFIC_KEYWORDS = {
+    "ai",
+    "artificial intelligence",
+    "machine learning",
+    "ml",
+    "gpu",
+    "gpus",
+    "ai infrastructure",
+    "ai compute",
+    "ai services",
+    "ai workload",
+    "ai training",
+    "ai inference",
+    "ai chips",
+    "nvidia",
+    "cuda",
+    "tensor",
+    "h100",
+    "a100",
+    "accelerator",
+    "accelerators",
+    "llm",
+    "large language model",
+    "generative ai",
+    "gen ai",
+    "deep learning",
+}
+
 # Segment indicators
 TRAINING_KEYWORDS = {
     "training",

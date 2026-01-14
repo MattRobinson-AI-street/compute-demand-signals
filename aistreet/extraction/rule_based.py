@@ -6,6 +6,7 @@ from typing import Optional
 from aistreet.db.repository import Signal
 from aistreet.extraction.base import Extractor
 from aistreet.extraction.keywords import (
+    AI_SPECIFIC_KEYWORDS,
     CAPACITY_KEYWORDS,
     CHIP_KEYWORDS,
     COMPUTE_KEYWORDS,
@@ -66,6 +67,7 @@ class RuleBasedExtractor(Extractor):
             List of Signal objects
         """
         signals = []
+        seen_quotes = set()  # Track seen quotes to prevent duplicates
 
         # Split text into sentences
         sentences = self._split_into_sentences(text)
@@ -110,17 +112,27 @@ class RuleBasedExtractor(Extractor):
                 sentence_lower, demand_direction, segment, constraint
             )
 
+            # Skip if we've already seen this exact quote
+            quote_stripped = sentence.strip()
+            if quote_stripped in seen_quotes:
+                continue
+            seen_quotes.add(quote_stripped)
+
+            # Determine if AI-specific
+            is_ai = self._is_ai_specific(sentence_lower)
+            ai_tag = "ai-specific" if is_ai else "general-infra"
+
             # Create signal
             signal = Signal(
                 source_id=source_id,
-                quote=sentence.strip(),
+                quote=quote_stripped,
                 demand_direction=demand_direction,
                 segment=segment,
                 constraint_type=constraint,
                 pricing=pricing,
                 time_horizon=time_horizon,
                 confidence=confidence,
-                notes=f"Sentence {i+1}",
+                notes=f"Sentence {i+1} | {ai_tag}",
             )
 
             signals.append(signal)
@@ -156,6 +168,10 @@ class RuleBasedExtractor(Extractor):
             return "inference"
         else:
             return "general"
+
+    def _is_ai_specific(self, text_lower: str) -> bool:
+        """Determine if signal is AI-specific vs general infrastructure."""
+        return contains_any(text_lower, AI_SPECIFIC_KEYWORDS)
 
     def _classify_constraint(self, text_lower: str) -> str:
         """Classify constraint type."""

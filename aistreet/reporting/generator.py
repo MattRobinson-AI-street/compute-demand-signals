@@ -68,6 +68,7 @@ def generate_report(since_date: Optional[str] = None) -> str:
 
     top_signals = signals[:10]
     for sig in top_signals:
+        strength = _confidence_to_strength(sig['confidence'])
         lines.append(f"### {sig['company']} - {sig['form_type']} ({sig['filing_date']})")
         lines.append("")
         lines.append(f"**Direction:** {sig['demand_direction']} | "
@@ -76,7 +77,7 @@ def generate_report(since_date: Optional[str] = None) -> str:
         lines.append("")
         lines.append(f"**Pricing:** {sig['pricing']} | "
                     f"**Time Horizon:** {sig['time_horizon']} | "
-                    f"**Confidence:** {sig['confidence']:.2f}")
+                    f"**Strength:** {strength}")
         lines.append("")
         lines.append(f"> {sig['quote']}")
         lines.append("")
@@ -150,6 +151,16 @@ def generate_and_save_report(since_date: Optional[str] = None) -> str:
     content = generate_report(since_date)
     save_report(content)
     return str(WEEKLY_REPORT_PATH)
+
+
+def _confidence_to_strength(confidence: float) -> str:
+    """Convert confidence score to human-readable strength label."""
+    if confidence >= 0.85:
+        return "High"
+    elif confidence >= 0.70:
+        return "Medium"
+    else:
+        return "Low"
 
 
 def generate_html_report(since_date: Optional[str] = None) -> str:
@@ -485,6 +496,43 @@ def generate_html_report(since_date: Optional[str] = None) -> str:
                 Period: {"Filings from " + since_date + " onwards" if since_date else "All filings"}
             </p>
         </div>
+"""
+
+    # Generate executive summary
+    demand_up = stats["demand_direction"].get("up", 0)
+    demand_down = stats["demand_direction"].get("down", 0)
+    total_demand_signals = demand_up + demand_down
+
+    # Count constraint mentions
+    constraint_counts = [(k, v) for k, v in stats["constraint_type"].items() if k != "none"]
+    constraint_counts.sort(key=lambda x: x[1], reverse=True)
+    top_constraint = constraint_counts[0] if constraint_counts else ("none", 0)
+
+    # Count AI-specific signals
+    ai_specific_count = sum(1 for sig in signals if "ai-specific" in sig.get('notes', ''))
+
+    # Find most active company
+    company_signal_counts = [(company, len(sigs)) for company, sigs in by_company.items()]
+    company_signal_counts.sort(key=lambda x: x[1], reverse=True)
+    top_company = company_signal_counts[0] if company_signal_counts else ("Unknown", 0)
+
+    html += f"""
+        <div class="stats-section" style="background: linear-gradient(135deg, #1e3a8a 0%, #1e293b 100%); border-color: #3b82f6;">
+            <h2>Executive Summary</h2>
+            <p style="color: #e4e4e7; font-size: 1.1rem; line-height: 1.8; margin-bottom: 1rem;">
+                <strong style="color: #fff;">Net demand trend:</strong> {"Demand-up signals dominate" if demand_up > demand_down * 2 else "Mixed signals" if demand_up > demand_down else "Demand weakening"}
+                ({demand_up} up, {demand_down} down of {total_demand_signals} directional signals).
+            </p>
+            <p style="color: #e4e4e7; font-size: 1.1rem; line-height: 1.8; margin-bottom: 1rem;">
+                <strong style="color: #fff;">Primary bottleneck:</strong> {top_constraint[0].capitalize()} constraints mentioned most frequently ({top_constraint[1]} signals).
+            </p>
+            <p style="color: #e4e4e7; font-size: 1.1rem; line-height: 1.8; margin-bottom: 1rem;">
+                <strong style="color: #fff;">AI focus:</strong> {ai_specific_count} of {len(signals)} signals ({ai_specific_count/len(signals)*100:.0f}%) explicitly reference AI infrastructure, training, or inference workloads.
+            </p>
+            <p style="color: #e4e4e7; font-size: 1.1rem; line-height: 1.8;">
+                <strong style="color: #fff;">Most active company:</strong> {top_company[0]} leads with {top_company[1]} signal{"s" if top_company[1] != 1 else ""} in this period.
+            </p>
+        </div>
 
         <div class="stats-section">
             <h2>Summary Statistics</h2>
@@ -569,7 +617,8 @@ def generate_html_report(since_date: Optional[str] = None) -> str:
             html += f"""                <span class="badge badge-constraint">{sig['constraint_type'].capitalize()}</span>
 """
 
-        html += f"""                <span class="badge badge-confidence">{sig['confidence']:.0%} Confidence</span>
+        strength = _confidence_to_strength(sig['confidence'])
+        html += f"""                <span class="badge badge-confidence">{strength} Strength</span>
             </div>
             <div class="quote">"{sig['quote']}"</div>
             <a href="{sig['url']}" target="_blank" rel="noopener" class="sec-link">View on SEC →</a>
@@ -650,9 +699,11 @@ def generate_index_html() -> str:
     # Get all sources to find the most recent filing date
     all_sources = get_all_sources()
 
-    # Get unique companies and filings
-    companies = set(sig['company'] for sig in all_signals)
-    filings = set((sig['company'], sig['filing_date'], sig['form_type']) for sig in all_signals)
+    # Get unique companies and filings (all sources vs signals only)
+    total_companies_tracked = len(set(src.company for src in all_sources))
+    total_filings = len(all_sources)
+    companies_with_signals = set(sig['company'] for sig in all_signals)
+    filings_with_signals = set((sig['company'], sig['filing_date'], sig['form_type']) for sig in all_signals)
 
     # Get the most recent filing date from all sources (not just signals)
     if all_sources:
@@ -898,7 +949,7 @@ def generate_index_html() -> str:
     <div class="hero">
         <h1>Compute Capacity Constraints</h1>
         <p class="subtitle">
-            Track AI infrastructure demand signals from SEC filings of major tech companies
+            Real-time intelligence on AI infrastructure demand, capacity constraints, and capital allocation from SEC filings
         </p>
     </div>
 
@@ -906,20 +957,20 @@ def generate_index_html() -> str:
         <div class="stat-card">
             <div class="stat-label">Total Signals</div>
             <div class="stat-value">{len(all_signals)}</div>
-            <div class="stat-description">Extracted from recent filings</div>
+            <div class="stat-description">From {len(companies_with_signals)} of {total_companies_tracked} companies</div>
         </div>
         <div class="stat-card">
-            <div class="stat-label">Companies Tracked</div>
-            <div class="stat-value">{len(companies)}</div>
-            <div class="stat-description">Major tech & infrastructure</div>
+            <div class="stat-label">Filings Analyzed</div>
+            <div class="stat-value">{total_filings}</div>
+            <div class="stat-description">{len(filings_with_signals)} contain signals</div>
         </div>
         <div class="stat-card">
-            <div class="stat-label">Recent Filings</div>
-            <div class="stat-value">{len(filings)}</div>
-            <div class="stat-description">10-Q, 10-K, 8-K forms</div>
+            <div class="stat-label">Companies Monitored</div>
+            <div class="stat-value">{total_companies_tracked}</div>
+            <div class="stat-description">Tech & infrastructure</div>
         </div>
         <div class="stat-card">
-            <div class="stat-label">Last Updated</div>
+            <div class="stat-label">Data Through</div>
             <div class="stat-value">{last_updated}</div>
             <div class="stat-description">{last_updated_year}</div>
         </div>
@@ -957,6 +1008,20 @@ def generate_index_html() -> str:
                 <li><strong style="color: #fff;">Infrastructure Segments:</strong> AI training, AI inference, general compute</li>
                 <li><strong style="color: #fff;">Market Dynamics:</strong> Pricing trends and time horizons</li>
             </ul>
+
+            <h3 style="font-size: 1.5rem; color: #fff; margin-top: 2rem; margin-bottom: 1rem;">Methodology</h3>
+            <p class="about-content">
+                <strong style="color: #fff;">What qualifies as a signal:</strong> We extract individual sentences from MD&A sections and business updates that explicitly mention compute infrastructure, capacity, or demand. Each sentence is analyzed independently.
+            </p>
+            <p class="about-content">
+                <strong style="color: #fff;">Classification approach:</strong> Rule-based keyword matching maps text to structured labels. For example, "demand" + "increasing" = demand direction "up"; mentions of "power," "energy," or "electricity" = constraint type "power"; references to "AI," "GPU," or "accelerator" indicate AI-specific segments.
+            </p>
+            <p class="about-content">
+                <strong style="color: #fff;">Confidence scoring:</strong> Confidence reflects signal specificity. High confidence (0.8-1.0) indicates multiple relevant keywords and clear directional language. Medium confidence (0.6-0.8) means partial matches or ambiguous phrasing. This is a heuristic measure, not a statistical model output.
+            </p>
+            <p class="about-content" style="margin-bottom: 0;">
+                <strong style="color: #fff;">Known limitations:</strong> SEC filings often use boilerplate language. Some signals may represent general datacenter trends rather than AI-specific capacity. Repeated risk factors across quarters may create duplicate signals. We filter risk factor sections but cannot eliminate all noise.
+            </p>
 
             <h3 style="font-size: 1.5rem; color: #fff; margin-top: 2rem; margin-bottom: 1rem;">Companies Monitored</h3>
             <div class="companies-grid">
