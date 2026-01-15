@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AI Street - Compute Demand Intelligence</title>
+    <title>AI Street - Compute Capacity Constraints</title>
     <style>
         * {
             margin: 0;
@@ -100,15 +100,16 @@
         }
 
         .stat-card:hover {
-            border-color: #3f3f46;
+            border-color: #3b82f6;
         }
 
         .stat-label {
-            color: #71717a;
-            font-size: 0.85rem;
+            color: #a1a1aa;
+            font-size: 0.875rem;
             text-transform: uppercase;
             letter-spacing: 0.05em;
-            margin-bottom: 0.5rem;
+            margin-bottom: 0.75rem;
+            font-weight: 600;
         }
 
         .stat-value {
@@ -119,14 +120,14 @@
         }
 
         .stat-description {
-            color: #a1a1aa;
+            color: #71717a;
             font-size: 0.9rem;
         }
 
         .cta-section {
             max-width: 1400px;
-            margin: 0 auto;
-            padding: 0 2rem 4rem;
+            margin: 0 auto 4rem;
+            padding: 0 2rem;
         }
 
         .cta-grid {
@@ -151,78 +152,42 @@
         }
 
         .cta-icon {
-            font-size: 2rem;
+            font-size: 2.5rem;
             margin-bottom: 1rem;
         }
 
         .cta-title {
-            color: #fff;
             font-size: 1.5rem;
             font-weight: 600;
+            color: #fff;
             margin-bottom: 0.75rem;
         }
 
         .cta-description {
             color: #a1a1aa;
-            font-size: 1rem;
             line-height: 1.6;
         }
 
         .about-section {
-            max-width: 1400px;
-            margin: 0 auto;
-            padding: 4rem 2rem;
             background: #18181b;
+            border: 1px solid #27272a;
             border-radius: 12px;
-            margin-bottom: 4rem;
+            padding: 2.5rem;
+            margin-top: 3rem;
         }
 
         .about-title {
-            font-size: 2rem;
+            font-size: 1.75rem;
             font-weight: 600;
             color: #fff;
-            margin-bottom: 1.5rem;
+            margin-bottom: 1rem;
         }
 
         .about-content {
             color: #d4d4d8;
-            font-size: 1.1rem;
+            font-size: 1.05rem;
             line-height: 1.8;
             margin-bottom: 1.5rem;
-        }
-
-        .companies-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-            gap: 1rem;
-            margin-top: 2rem;
-        }
-
-        .company-badge {
-            background: #1f1f23;
-            border: 1px solid #27272a;
-            padding: 1rem;
-            border-radius: 8px;
-            text-align: center;
-            font-weight: 500;
-            color: #e4e4e7;
-        }
-
-        footer {
-            text-align: center;
-            padding: 2rem;
-            color: #71717a;
-            font-size: 0.9rem;
-            border-top: 1px solid #27272a;
-        }
-
-        footer a {
-            color: #a1a1aa;
-            text-decoration: none;
-        }
-
-        footer a:hover {
-            color: #fff;
         }
     </style>
 </head>
@@ -232,56 +197,48 @@
             <div class="nav-brand">AI Street</div>
             <ul class="nav-links">
                 <li><a href="index.html">Home</a></li>
-                <li><a href="calendar.html">Calendar</a></li>
                 <li><a href="report.html">Report</a></li>
             </ul>
         </div>
     </nav>
 
     <div class="hero">
-        <h1>Compute Demand Intelligence</h1>
+        <h1>Compute Capacity Constraints</h1>
         <p class="subtitle">
-            Track AI infrastructure demand signals from SEC filings of major tech companies
+            Real-time intelligence on AI infrastructure demand and capacity constraints from earnings call transcripts
         </p>
     </div>
 
     <div class="stats-grid">
         <div class="stat-card">
             <div class="stat-label">Total Signals</div>
-            <div class="stat-value">127</div>
-            <div class="stat-description">Extracted from recent filings</div>
+            <div class="stat-value">3</div>
+            <div class="stat-description">From earnings transcripts</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-label">Transcripts Analyzed</div>
+            <div class="stat-value">5</div>
+            <div class="stat-description">NVIDIA & Meta earnings calls</div>
         </div>
         <div class="stat-card">
             <div class="stat-label">Companies Tracked</div>
-            <div class="stat-value">3</div>
-            <div class="stat-description">Major tech & infrastructure</div>
-        </div>
-        <div class="stat-card">
-            <div class="stat-label">Recent Filings</div>
-            <div class="stat-value">10</div>
-            <div class="stat-description">10-Q, 10-K, 8-K forms</div>
+            <div class="stat-value">2</div>
+            <div class="stat-description">GPU & infrastructure leaders</div>
         </div>
         <div class="stat-card">
             <div class="stat-label">Last Updated</div>
-            <div class="stat-value">Jan 11</div>
+            <div class="stat-value">Jan 15</div>
             <div class="stat-description">2026</div>
         </div>
     </div>
 
     <div class="cta-section">
         <div class="cta-grid">
-            <a href="calendar.html" class="cta-card">
-                <div class="cta-icon">📅</div>
-                <div class="cta-title">Calendar View</div>
-                <div class="cta-description">
-                    Browse signals organized by filing date with visual indicators for constraint types and upcoming earnings predictions
-                </div>
-            </a>
             <a href="report.html" class="cta-card">
                 <div class="cta-icon">📊</div>
                 <div class="cta-title">Detailed Report</div>
                 <div class="cta-description">
-                    View comprehensive analysis with signal breakdowns, top insights, and company-by-company summaries with direct SEC links
+                    View CEO/CFO capacity constraint admissions from earnings calls with direct quotes and analysis
                 </div>
             </a>
         </div>
@@ -291,36 +248,31 @@
         <div class="about-section">
             <h2 class="about-title">What We Track</h2>
             <p class="about-content">
-                This platform monitors SEC filings (10-Q, 10-K, 8-K) from major technology and infrastructure companies
-                to extract signals about compute demand trends. We analyze statements about:
+                This platform monitors earnings call transcripts from major technology companies
+                to extract explicit statements about compute capacity constraints. We focus on direct CEO/CFO admissions about:
             </p>
             <ul style="color: #d4d4d8; font-size: 1.05rem; line-height: 2; list-style-position: inside;">
-                <li><strong style="color: #fff;">Demand Direction:</strong> Is compute demand increasing, decreasing, or staying flat?</li>
-                <li><strong style="color: #fff;">Infrastructure Constraints:</strong> Power, chip availability, networking, datacenter capacity</li>
-                <li><strong style="color: #fff;">Infrastructure Segments:</strong> AI training, AI inference, general compute</li>
-                <li><strong style="color: #fff;">Market Dynamics:</strong> Pricing trends and time horizons</li>
+                <li><strong style="color: #fff;">GPU Supply Constraints:</strong> When cloud providers are sold out or capacity is fully utilized</li>
+                <li><strong style="color: #fff;">Demand Growth:</strong> Explicit statements about training and inference demand trends</li>
+                <li><strong style="color: #fff;">Infrastructure Bottlenecks:</strong> Power, chip availability, datacenter capacity limitations</li>
             </ul>
 
-            <h3 style="font-size: 1.5rem; color: #fff; margin-top: 2rem; margin-bottom: 1rem;">Companies Monitored</h3>
-            <div class="companies-grid">
-                <div class="company-badge">Microsoft</div>
-                <div class="company-badge">Alphabet</div>
-                <div class="company-badge">Amazon</div>
-                <div class="company-badge">Meta</div>
-                <div class="company-badge">NVIDIA</div>
-                <div class="company-badge">AMD</div>
-                <div class="company-badge">Broadcom</div>
-                <div class="company-badge">Arista Networks</div>
-                <div class="company-badge">Equinix</div>
-                <div class="company-badge">Digital Realty</div>
-                <div class="company-badge">Vertiv</div>
-            </div>
+            <h3 style="font-size: 1.5rem; color: #fff; margin-top: 2rem; margin-bottom: 1rem;">Why Transcripts?</h3>
+            <p class="about-content">
+                <strong style="color: #fff;">SEC filings are written by lawyers to avoid admitting operational failures.</strong>
+                Earnings call transcripts capture unscripted CEO/CFO responses to analyst questions about capacity constraints.
+            </p>
+            <p class="about-content">
+                Example: NVIDIA Q3 FY2026 - Jensen Huang: <em>"The clouds are sold out and our GPU installed base, 
+                both new and previous generations, including Blackwell, Hopper, and Ampere, is fully utilized."</em>
+            </p>
+
+            <h3 style="font-size: 1.5rem; color: #fff; margin-top: 2rem; margin-bottom: 1rem;">Current Coverage</h3>
+            <p class="about-content">
+                <strong style="color: #fff;">NVIDIA:</strong> Q1, Q2, Q3 FY2026 earnings calls<br>
+                <strong style="color: #fff;">Meta:</strong> Q2, Q3 2025 earnings calls
+            </p>
         </div>
     </div>
-
-    <footer>
-        <p>Data sourced from <a href="https://www.sec.gov/edgar" target="_blank" rel="noopener">SEC EDGAR</a> | Generated automatically via rule-based extraction</p>
-        <p style="margin-top: 0.5rem;">AI Street Compute Demand Intelligence</p>
-    </footer>
 </body>
 </html>
