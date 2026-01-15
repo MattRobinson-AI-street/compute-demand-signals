@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AI Street - Compute Capacity Constraints</title>
+    <title>AI Street - Compute Demand Intelligence</title>
     <style>
         * {
             margin: 0;
@@ -151,69 +151,78 @@
         }
 
         .cta-icon {
-            font-size: 2.5rem;
+            font-size: 2rem;
             margin-bottom: 1rem;
         }
 
         .cta-title {
+            color: #fff;
             font-size: 1.5rem;
             font-weight: 600;
-            color: #fff;
             margin-bottom: 0.75rem;
         }
 
         .cta-description {
             color: #a1a1aa;
+            font-size: 1rem;
             line-height: 1.6;
         }
 
         .about-section {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 4rem 2rem;
             background: #18181b;
-            border: 1px solid #27272a;
             border-radius: 12px;
-            padding: 2.5rem;
-            margin-top: 3rem;
+            margin-bottom: 4rem;
         }
 
         .about-title {
-            font-size: 1.75rem;
+            font-size: 2rem;
             font-weight: 600;
             color: #fff;
-            margin-bottom: 1rem;
+            margin-bottom: 1.5rem;
         }
 
         .about-content {
             color: #d4d4d8;
-            font-size: 1.05rem;
+            font-size: 1.1rem;
             line-height: 1.8;
             margin-bottom: 1.5rem;
         }
 
         .companies-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
             gap: 1rem;
-            margin-top: 1rem;
+            margin-top: 2rem;
         }
 
         .company-badge {
             background: #1f1f23;
             border: 1px solid #27272a;
+            padding: 1rem;
             border-radius: 8px;
-            padding: 0.75rem 1rem;
             text-align: center;
-            color: #d4d4d8;
-            font-size: 0.9rem;
             font-weight: 500;
+            color: #e4e4e7;
         }
 
         footer {
             text-align: center;
-            padding: 3rem 2rem;
+            padding: 2rem;
             color: #71717a;
             font-size: 0.9rem;
             border-top: 1px solid #27272a;
-            margin-top: 4rem;
+        }
+
+        footer a {
+            color: #a1a1aa;
+            text-decoration: none;
+        }
+
+        footer a:hover {
+            color: #fff;
         }
     </style>
 </head>
@@ -230,31 +239,31 @@
     </nav>
 
     <div class="hero">
-        <h1>Compute Capacity Constraints</h1>
+        <h1>Compute Demand Intelligence</h1>
         <p class="subtitle">
-            Real-time intelligence on AI infrastructure demand, capacity constraints, and capital allocation from SEC filings
+            Track AI infrastructure demand signals from SEC filings of major tech companies
         </p>
     </div>
 
     <div class="stats-grid">
         <div class="stat-card">
             <div class="stat-label">Total Signals</div>
-            <div class="stat-value">9</div>
-            <div class="stat-description">From 6 of 13 companies</div>
+            <div class="stat-value">127</div>
+            <div class="stat-description">Extracted from recent filings</div>
         </div>
         <div class="stat-card">
-            <div class="stat-label">Filings Analyzed</div>
-            <div class="stat-value">45</div>
-            <div class="stat-description">6 contain signals</div>
+            <div class="stat-label">Companies Tracked</div>
+            <div class="stat-value">3</div>
+            <div class="stat-description">Major tech & infrastructure</div>
         </div>
         <div class="stat-card">
-            <div class="stat-label">Companies Monitored</div>
-            <div class="stat-value">13</div>
-            <div class="stat-description">Tech & infrastructure</div>
+            <div class="stat-label">Recent Filings</div>
+            <div class="stat-value">10</div>
+            <div class="stat-description">10-Q, 10-K, 8-K forms</div>
         </div>
         <div class="stat-card">
-            <div class="stat-label">Data Through</div>
-            <div class="stat-value">Jan 13</div>
+            <div class="stat-label">Last Updated</div>
+            <div class="stat-value">Jan 11</div>
             <div class="stat-description">2026</div>
         </div>
     </div>
@@ -292,20 +301,6 @@
                 <li><strong style="color: #fff;">Market Dynamics:</strong> Pricing trends and time horizons</li>
             </ul>
 
-            <h3 style="font-size: 1.5rem; color: #fff; margin-top: 2rem; margin-bottom: 1rem;">Methodology</h3>
-            <p class="about-content">
-                <strong style="color: #fff;">What qualifies as a signal:</strong> We extract individual sentences from MD&A sections and business updates that explicitly mention compute infrastructure, capacity, or demand. Each sentence is analyzed independently.
-            </p>
-            <p class="about-content">
-                <strong style="color: #fff;">Classification approach:</strong> Rule-based keyword matching maps text to structured labels. For example, "demand" + "increasing" = demand direction "up"; mentions of "power," "energy," or "electricity" = constraint type "power"; references to "AI," "GPU," or "accelerator" indicate AI-specific segments.
-            </p>
-            <p class="about-content">
-                <strong style="color: #fff;">Confidence scoring:</strong> Confidence reflects explicitness of capacity constraint language. High confidence (0.8-1.0) indicates explicit statements like "insufficient capacity," "unable to meet demand," or "deployment delays" with current timing. Medium confidence (0.5-0.79) means strong demand signals with specific constraint types mentioned. Low confidence (0.3-0.49) applies to general demand signals. This is a heuristic measure, not a statistical model output.
-            </p>
-            <p class="about-content" style="margin-bottom: 0;">
-                <strong style="color: #fff;">Known limitations:</strong> SEC filings often use boilerplate language. Some signals may represent general datacenter trends rather than AI-specific capacity. Repeated risk factors across quarters may create duplicate signals. We filter risk factor sections but cannot eliminate all noise.
-            </p>
-
             <h3 style="font-size: 1.5rem; color: #fff; margin-top: 2rem; margin-bottom: 1rem;">Companies Monitored</h3>
             <div class="companies-grid">
                 <div class="company-badge">Microsoft</div>
@@ -324,9 +319,8 @@
     </div>
 
     <footer>
-        <p>Data sourced from SEC EDGAR | Generated automatically via rule-based extraction</p>
-        <p style="margin-top: 0.5rem;">AI Street Compute Capacity Constraints</p>
-        <p style="margin-top: 0.5rem; font-size: 0.85rem;">Generated: 2026-01-15 12:02 UTC</p>
+        <p>Data sourced from <a href="https://www.sec.gov/edgar" target="_blank" rel="noopener">SEC EDGAR</a> | Generated automatically via rule-based extraction</p>
+        <p style="margin-top: 0.5rem;">AI Street Compute Demand Intelligence</p>
     </footer>
 </body>
 </html>

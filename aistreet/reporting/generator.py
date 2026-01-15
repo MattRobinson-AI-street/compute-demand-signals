@@ -9,18 +9,25 @@ from aistreet.config import WEEKLY_REPORT_PATH
 from aistreet.db.repository import get_signal_stats, get_signals_with_sources
 
 
-def generate_report(since_date: Optional[str] = None) -> str:
+def generate_report(since_date: Optional[str] = None, transcripts_only: bool = True) -> str:
     """
     Generate a markdown report of compute demand signals.
 
     Args:
         since_date: Optional ISO date to filter signals (based on filing_date)
+        transcripts_only: If True, only include signals from earnings transcripts (default: True)
 
     Returns:
         Markdown report content
     """
     # Fetch signals with source data
-    signals = get_signals_with_sources(since_date=since_date)
+    all_signals = get_signals_with_sources(since_date=since_date)
+
+    # Filter to transcripts only if requested
+    if transcripts_only:
+        signals = [s for s in all_signals if s.get('source_type') == 'transcript']
+    else:
+        signals = all_signals
 
     # Get statistics (filtered by same date range)
     stats = get_signal_stats(since_date=since_date)
@@ -57,10 +64,39 @@ def generate_report(since_date: Optional[str] = None) -> str:
     lines.append("")
     lines.append("| Constraint | Count |")
     lines.append("|------------|-------|")
-    for constraint in ["power", "chips", "networking", "capacity", "other", "none"]:
+    for constraint in ["power", "chips", "networking", "capacity", "supply_chain", "other", "none"]:
         count = stats["constraint_type"].get(constraint, 0)
         lines.append(f"| {constraint} | {count} |")
     lines.append("")
+
+    # Highlight explicit capacity constraints
+    explicit_constraints = [s for s in signals if "EXPLICIT-CONSTRAINT" in s.get('notes', '')]
+    if explicit_constraints:
+        lines.append("## 🚨 Explicit Capacity Constraints")
+        lines.append("")
+        lines.append(f"**{len(explicit_constraints)} signal(s)** where companies explicitly state insufficient capacity, unmet demand, or operational bottlenecks:")
+        lines.append("")
+
+        for sig in explicit_constraints[:10]:  # Top 10 explicit constraints
+            strength = _confidence_to_strength(sig['confidence'])
+            # Extract timing info from notes if available
+            timing_info = ""
+            if "timing:" in sig.get('notes', ''):
+                timing_part = [n for n in sig['notes'].split('|') if 'timing:' in n]
+                if timing_part:
+                    timing_info = f" | **Timing:** {timing_part[0].split(':')[1].strip()}"
+
+            lines.append(f"### {sig['company']} - {sig['form_type']} ({sig['filing_date']})")
+            lines.append("")
+            lines.append(f"**Bottleneck:** {sig['constraint_type']} | "
+                        f"**Confidence:** {strength}{timing_info}")
+            lines.append("")
+            lines.append(f"> {sig['quote']}")
+            lines.append("")
+            lines.append(f"*Source:* [{sig['title']}]({sig['url']})")
+            lines.append("")
+            lines.append("---")
+            lines.append("")
 
     # Top 10 newest signals
     lines.append("## Top 10 Recent Signals")
@@ -163,21 +199,34 @@ def _confidence_to_strength(confidence: float) -> str:
         return "Low"
 
 
-def generate_html_report(since_date: Optional[str] = None) -> str:
+def generate_html_report(since_date: Optional[str] = None, transcripts_only: bool = True) -> str:
     """
     Generate an HTML version of the report.
 
     Args:
         since_date: Optional ISO date to filter signals
+        transcripts_only: If True, only include signals from earnings transcripts (default: True)
 
     Returns:
         HTML report content
     """
     # Fetch signals with source data
-    signals = get_signals_with_sources(since_date=since_date)
+    all_signals = get_signals_with_sources(since_date=since_date)
 
-    # Get statistics (filtered by same date range)
-    stats = get_signal_stats(since_date=since_date)
+    # Filter to transcripts only if requested
+    if transcripts_only:
+        signals = [s for s in all_signals if s.get('source_type') == 'transcript']
+    else:
+        signals = all_signals
+
+    # Calculate stats from filtered signals
+    stats = {
+        "demand_direction": defaultdict(int),
+        "constraint_type": defaultdict(int)
+    }
+    for sig in signals:
+        stats["demand_direction"][sig.get("demand_direction", "unclear")] += 1
+        stats["constraint_type"][sig.get("constraint_type", "none")] += 1
 
     # Group signals by company
     by_company = defaultdict(list)
@@ -516,6 +565,9 @@ def generate_html_report(since_date: Optional[str] = None) -> str:
     company_signal_counts.sort(key=lambda x: x[1], reverse=True)
     top_company = company_signal_counts[0] if company_signal_counts else ("Unknown", 0)
 
+    # Calculate AI percentage safely
+    ai_pct = round(ai_specific_count / len(signals) * 100) if len(signals) > 0 else 0
+
     html += f"""
         <div class="stats-section" style="background: linear-gradient(135deg, #1e3a8a 0%, #1e293b 100%); border-color: #3b82f6;">
             <h2>Executive Summary</h2>
@@ -527,7 +579,7 @@ def generate_html_report(since_date: Optional[str] = None) -> str:
                 <strong style="color: #fff;">Primary bottleneck:</strong> {top_constraint[0].capitalize()} constraints mentioned most frequently ({top_constraint[1]} signals).
             </p>
             <p style="color: #e4e4e7; font-size: 1.1rem; line-height: 1.8; margin-bottom: 1rem;">
-                <strong style="color: #fff;">AI focus:</strong> {ai_specific_count} of {len(signals)} signals ({ai_specific_count/len(signals)*100:.0f}%) explicitly reference AI infrastructure, training, or inference workloads.
+                <strong style="color: #fff;">AI focus:</strong> {ai_specific_count} of {len(signals)} signals ({ai_pct}%) explicitly reference AI infrastructure, training, or inference workloads.
             </p>
             <p style="color: #e4e4e7; font-size: 1.1rem; line-height: 1.8;">
                 <strong style="color: #fff;">Most active company:</strong> {top_company[0]} leads with {top_company[1]} signal{"s" if top_company[1] != 1 else ""} in this period.
@@ -580,10 +632,11 @@ def generate_html_report(since_date: Optional[str] = None) -> str:
                 <tbody>
 """
 
-    for constraint in ["power", "chips", "networking", "capacity", "other", "none"]:
+    for constraint in ["power", "chips", "networking", "capacity", "supply_chain", "other", "none"]:
         count = stats["constraint_type"].get(constraint, 0)
+        constraint_display = constraint.replace('_', ' ').title()
         html += f"""                    <tr>
-                        <td>{constraint.capitalize()}</td>
+                        <td>{constraint_display}</td>
                         <td>{count}</td>
                     </tr>
 """
@@ -591,7 +644,51 @@ def generate_html_report(since_date: Optional[str] = None) -> str:
     html += """                </tbody>
             </table>
         </div>
+"""
 
+    # Add explicit capacity constraints section
+    explicit_constraints = [s for s in signals if "EXPLICIT-CONSTRAINT" in s.get('notes', '')]
+    if explicit_constraints:
+        html += f"""
+        <div style="background: linear-gradient(135deg, #7f1d1d 0%, #18181b 100%); border: 1px solid #dc2626; border-radius: 12px; padding: 2rem; margin-bottom: 3rem;">
+            <h2 style="color: #fff; margin-bottom: 1rem;">🚨 Explicit Capacity Constraints</h2>
+            <p style="color: #fca5a5; font-size: 1.05rem; margin-bottom: 2rem;">
+                <strong style="color: #fff;">{len(explicit_constraints)} signal(s)</strong> where companies explicitly state insufficient capacity, unmet demand, or operational bottlenecks:
+            </p>
+"""
+
+        for sig in explicit_constraints[:10]:
+            strength = _confidence_to_strength(sig['confidence'])
+            timing_info = ""
+            if "timing:" in sig.get('notes', ''):
+                timing_part = [n for n in sig['notes'].split('|') if 'timing:' in n]
+                if timing_part:
+                    timing_value = timing_part[0].split(':')[1].strip()
+                    timing_info = f"<span class='badge' style='background: #4c1d95; color: #c4b5fd;'>Timing: {timing_value}</span>"
+
+            constraint_class = sig['constraint_type'] if sig['constraint_type'] != 'none' else ''
+            html += f"""
+            <div class="signal-card" style="border-color: #dc2626;">
+                <div class="signal-header">
+                    <div>
+                        <div class="company-name">{sig['company']}</div>
+                        <div class="filing-date">{sig['form_type']} - {sig['filing_date']}</div>
+                    </div>
+                </div>
+                <div>
+                    <span class="badge badge-constraint">Bottleneck: {sig['constraint_type'].replace('_', ' ').title()}</span>
+                    <span class="badge badge-confidence">{strength} Confidence</span>
+                    {timing_info}
+                </div>
+                <div class="quote">"{sig['quote']}"</div>
+                <a href="{sig['url']}" target="_blank" rel="noopener" class="sec-link">View on SEC →</a>
+            </div>
+"""
+
+        html += """        </div>
+"""
+
+    html += """
         <h2>Top 10 Recent Signals</h2>
 """
 
@@ -1017,7 +1114,7 @@ def generate_index_html() -> str:
                 <strong style="color: #fff;">Classification approach:</strong> Rule-based keyword matching maps text to structured labels. For example, "demand" + "increasing" = demand direction "up"; mentions of "power," "energy," or "electricity" = constraint type "power"; references to "AI," "GPU," or "accelerator" indicate AI-specific segments.
             </p>
             <p class="about-content">
-                <strong style="color: #fff;">Confidence scoring:</strong> Confidence reflects signal specificity. High confidence (0.8-1.0) indicates multiple relevant keywords and clear directional language. Medium confidence (0.6-0.8) means partial matches or ambiguous phrasing. This is a heuristic measure, not a statistical model output.
+                <strong style="color: #fff;">Confidence scoring:</strong> Confidence reflects explicitness of capacity constraint language. High confidence (0.8-1.0) indicates explicit statements like "insufficient capacity," "unable to meet demand," or "deployment delays" with current timing. Medium confidence (0.5-0.79) means strong demand signals with specific constraint types mentioned. Low confidence (0.3-0.49) applies to general demand signals. This is a heuristic measure, not a statistical model output.
             </p>
             <p class="about-content" style="margin-bottom: 0;">
                 <strong style="color: #fff;">Known limitations:</strong> SEC filings often use boilerplate language. Some signals may represent general datacenter trends rather than AI-specific capacity. Repeated risk factors across quarters may create duplicate signals. We filter risk factor sections but cannot eliminate all noise.
